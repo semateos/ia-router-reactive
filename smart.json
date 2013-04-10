@@ -1,0 +1,10 @@
+{
+    "name": "ia-router-reactive",
+    "description": "Reactive client-side router adapter for ia-router-core",
+    "homepage": "https://github.com/InnoAccel/ia-router-reactive",
+    "author": "Fritz Gerneth <fgerneth@effms.de>",
+    "version": "0.4",
+    "git": "https://github.com/InnoAccel/ia-router-reactive.git",
+    "packages": {
+    }
+}
