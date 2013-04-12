@@ -25,3 +25,6 @@ If no route matches, `match` returns `undefined`.
 
 # API
 The source code is fully annotated in yuidoc style.
+
+# Contact
+fge @freenode
