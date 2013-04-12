@@ -42,10 +42,10 @@
             },
             reactive = new Reactive(routerMock, source.get),
             reCalculated = false;
-        Deps.autorun(function () {
-            if (reactive.match() !== undefined) {
-                reCalculated = true;
-            }
+
+        Deps.autorun(function (s) {
+            reactive.match();
+            reCalculated = !s.firstRun;
         });
 
         source.set('url2');
@@ -80,7 +80,7 @@
                 }
             },
             reactive = new Reactive(routerMock, source.get);
-
+        reactive.match();
         reactive.stop();
         source.set('new');
         Meteor.flush();
@@ -89,27 +89,27 @@
 
     Tinytest.add('ia-router-reactive - invalidate triggers re-computation', function (test) {
         var source = createReactiveSource(),
-            calls = 0,
             routerMock = {
-                doesMatch: function (source) {
-                    return true;
-                },
-                match: function (source) {
-                    calls++;
-                    return;
-                }
+                doesMatch: function () { },
+                match: function () { }
             },
-            reactive = new Reactive(routerMock, source.get);
+            reactive = new Reactive(routerMock, source.get),
+            reCalculated = false;
+
+        Deps.autorun(function (s) {
+            reactive.match();
+            reCalculated = !s.firstRun;
+        });
 
         reactive.invalidate();
         Meteor.flush();
-        test.equal(calls, 2);
+        test.isTrue(reCalculated);
     });
 
     Tinytest.add('ia-router-reactive - getRouter returns router of construction', function (test) {
         var routerMock = {
-                doesMatch: function (source) {},
-                match: function (source) {}
+                doesMatch: function () {},
+                match: function () {}
             },
             source = createReactiveSource(),
             reactive = new Reactive(routerMock, source.get);
@@ -119,13 +119,13 @@
 
     Tinytest.add('ia-router-reactive - add route delegates to construction router', function (test) {
         var routeMock = {
-                doesMatch: function (source) {},
-                match: function (source) {}
+                doesMatch: function () {},
+                match: function () {}
             },
             routerListMock = {
                 addRoute: function (route) { test.equal(route, routeMock) },
-                doesMatch: function (source) {},
-                match: function (source) {}
+                doesMatch: function () {},
+                match: function () {}
             },
             source = createReactiveSource(),
             reactive = new Reactive(routerListMock, source.get);
@@ -133,11 +133,36 @@
         reactive.addRoute(routeMock);
     });
 
-    Tinytest.add('ia-router-reactive -- addRoute triggers re-computation', function (test) {
+    Tinytest.add('ia-router-reactive - addRoute triggers re-computation', function (test) {
+        var source = createReactiveSource(),
+            routerMock = {
+                doesMatch: function () { },
+                match: function () { }
+            },
+            routerMockTwo = {
+                doesMatch: function () { },
+                match: function () { },
+                addRoute: function () {}
+            },
+            reactive = new Reactive(routerMockTwo, source.get),
+            reCalculated = false;
+
+        Deps.autorun(function (s) {
+            reactive.match();
+            reCalculated = !s.firstRun;
+        });
+        reactive.addRoute(routerMock);
+        Meteor.flush();
+
+        test.isTrue(reCalculated);
+    });
+
+    Tinytest.add('ia-router-reactive - not reactive at the beginning', function (test) {
         var source = createReactiveSource(),
             calls = 0,
             routerMock = {
                 doesMatch: function (source) {
+                    calls++;
                     return true;
                 },
                 match: function (source) {
@@ -145,18 +170,10 @@
                     return;
                 }
             },
-            reactive = new Reactive({
-                doesMatch: function (source) {
-                    return true;
-                },
-                match: function (source) {
-                    calls++;
-                    return;
-                }
-            }, source.get);
+            reactive = new Reactive(routerMock, source.get);
 
-        reactive.addRoute(routerMock);
         Meteor.flush();
-        test.equal(calls, 2);
+        test.equal(0, calls);
+
     });
 } (Tinytest, Deps, InnoAccel.Router.Reactive));
