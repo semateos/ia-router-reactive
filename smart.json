@@ -6,6 +6,9 @@
     "version": "0.6.0",
     "git": "https://github.com/InnoAccel/ia-router-reactive.git",
     "packages": {
+    	"ia": {
+            "git": "https://github.com/semateos/ia.git"
+        },
         "ia-router-core": {}
     }
 }

@@ -3,9 +3,7 @@ Package.describe({
 });
 
 Package.on_use(function (api, where) {
-    api.use(['ia-router-core', 'deps'], 'client');
-
-    api.export("InnoAccel");
+    api.use(['ia', 'ia-router-core', 'deps'], 'client');
 
     api.add_files('lib/Reactive.js', 'client');
 });
